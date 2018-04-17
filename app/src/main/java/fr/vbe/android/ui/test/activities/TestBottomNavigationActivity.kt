@@ -1,6 +1,6 @@
 package fr.vbe.android.ui.test.activities
 
-import android.os.Bundle
+import android.view.MenuItem
 import android.widget.TextView
 import fr.vbe.android.ui.activities.VBEBottomNavigationActivity
 import fr.vbe.android.ui.test.R
@@ -9,9 +9,29 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
 
     override fun menuRes() = R.menu.test_bottom_navigation_activity
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        container.addView(TextView(this).also { it.text = "CONTENT" })
+    override fun onNavigationItemSelected(item: MenuItem, userAction: Boolean): Boolean {
+        when (item.itemId) {
+            R.id.menu_item_tata -> displayTata()
+            R.id.menu_item_titi -> displayTiti()
+            R.id.menu_item_toto -> displayToto()
+        }
+        return true
+    }
+
+
+    fun displayTata() {
+        container.removeAllViews()
+        container.addView(TextView(this).also { it.text = "TATA" })
+    }
+
+    fun displayTiti() {
+        container.removeAllViews()
+        container.addView(TextView(this).also { it.text = "TITI" })
+    }
+
+    fun displayToto() {
+        container.removeAllViews()
+        container.addView(TextView(this).also { it.text = "TOTO" })
     }
 
 }

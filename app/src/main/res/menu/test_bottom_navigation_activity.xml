@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:title="Toto" />
-    <item android:title="Titi" />
-    <item android:title="Tata" />
+    <item
+        android:id="@+id/menu_item_toto"
+        android:title="Toto" />
+    <item
+        android:id="@+id/menu_item_titi"
+        android:title="Titi" />
+    <item
+        android:id="@+id/menu_item_tata"
+        android:title="Tata" />
 </menu>
