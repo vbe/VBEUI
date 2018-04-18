@@ -21,6 +21,10 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
         return true
     }
 
+    override fun itemTextColor() = R.color.bottom_tab_text_color
+
+    override fun itemBackgroundResource() = R.drawable.bottom_tabs_backround
+
 
     fun displayTata() {
         container.removeAllViews()
