@@ -12,6 +12,10 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
      */
     override fun menuRes() = R.menu.test_bottom_navigation_activity
 
+    override fun itemTextColor() = R.color.bottom_tab_text_color
+    override fun itemIconTint() = R.color.bottom_tab_text_color
+    override fun itemBackgroundResource() = R.drawable.bottom_tabs_backround
+
     override fun onNavigationItemSelected(item: MenuItem, userAction: Boolean): Boolean {
         when (item.itemId) {
             R.id.menu_item_tata -> displayTata()
@@ -20,10 +24,6 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
         }
         return true
     }
-
-    override fun itemTextColor() = R.color.bottom_tab_text_color
-
-    override fun itemBackgroundResource() = R.drawable.bottom_tabs_backround
 
 
     fun displayTata() {

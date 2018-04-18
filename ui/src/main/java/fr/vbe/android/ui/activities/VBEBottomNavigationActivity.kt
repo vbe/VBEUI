@@ -34,6 +34,9 @@ abstract class VBEBottomNavigationActivity : AppCompatActivity() {
         itemTextColor()?.let {
             navigation.itemTextColor = ContextCompat.getColorStateList(this, it)
         }
+        itemIconTint()?.let {
+            navigation.itemIconTintList = ContextCompat.getColorStateList(this, it)
+        }
 
 
 
@@ -56,6 +59,10 @@ abstract class VBEBottomNavigationActivity : AppCompatActivity() {
      * Note: selected tab state is state_checked="true"
      */
     @ColorRes open fun itemTextColor(): Int? = null
+    /**
+     * Note: selected tab state is state_checked="true"
+     */
+    @ColorRes open fun itemIconTint(): Int? = null
 
     abstract fun onNavigationItemSelected(item: MenuItem, userAction: Boolean): Boolean
     open fun onNavigationItemReselected(item: MenuItem) {}
