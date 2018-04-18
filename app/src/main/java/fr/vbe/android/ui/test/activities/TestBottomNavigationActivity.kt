@@ -7,6 +7,9 @@ import fr.vbe.android.ui.test.R
 
 class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
 
+    /**
+     * Don't forget to put ids in the menu items otherwise the selection callback won't be called
+     */
     override fun menuRes() = R.menu.test_bottom_navigation_activity
 
     override fun onNavigationItemSelected(item: MenuItem, userAction: Boolean): Boolean {
