@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import fr.vbe.android.base.BaseActivity
 import fr.vbe.android.ui.test.activities.TestBottomNavigationActivity
+import fr.vbe.android.ui.test.activities.TestFABActivity
 import kotlin.reflect.KClass
 
 /**
@@ -15,7 +16,7 @@ class HomeActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        TestBottomNavigationActivity::class.create(this)
+        TestFABActivity::class.create(this)
     }
 }
 

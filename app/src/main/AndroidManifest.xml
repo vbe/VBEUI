@@ -16,6 +16,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".activities.TestBottomNavigationActivity" />
+        <activity android:name=".activities.TestFABActivity" />
 
 
     </application>
