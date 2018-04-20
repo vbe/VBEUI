@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="vbeui_margin_xxxs">1dp</dimen>
+    <dimen name="vbeui_margin_xxs">2dp</dimen>
+    <dimen name="vbeui_margin_xs">4dp</dimen>
+    <dimen name="vbeui_margin_s">8dp</dimen>
+    <dimen name="vbeui_margin_m">16dp</dimen>
+    <dimen name="vbeui_margin_l">24dp</dimen>
+    <dimen name="vbeui_margin_xl">32dp</dimen>
+    <dimen name="vbeui_margin_xxl">48dp</dimen>
+    <dimen name="vbeui_margin_xxxl">64dp</dimen>
+
+    <dimen name="vbeui_fab_margin">@dimen/vbeui_margin_m</dimen>
+</resources>
