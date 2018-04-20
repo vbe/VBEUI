@@ -1,30 +1,30 @@
 package fr.vbe.android.ui.activities
 
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
 import android.support.annotation.MenuRes
 import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import fr.vbe.android.ui.R
+import android.view.View
+import android.view.ViewGroup
 import fr.vbe.android.ui.databinding.VbeActivityBottomNavigationBinding
 
-abstract class VBEBottomNavigationActivity : AppCompatActivity() {
+abstract class VBEBottomNavigationActivity : VBEToolbarActivity() {
 
     private lateinit var binding: VbeActivityBottomNavigationBinding
 
-    val container by lazy {
-        binding.vbeContainer
+    private val _container by lazy {
+        binding.vbeActivityBottomNavigationContainer
     }
     val navigation by lazy {
-        binding.vbeNavigation
+        binding.vbeActivityBottomNavigationNavigation
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.vbe_activity_bottom_navigation)
+        binding = VbeActivityBottomNavigationBinding.inflate(layoutInflater, super.getContainer(), false)
+        super.getContainer().addView(binding.root)
         navigation.inflateMenu(menuRes())
 
         // Look and feel
@@ -39,7 +39,6 @@ abstract class VBEBottomNavigationActivity : AppCompatActivity() {
         }
 
 
-
         // When only setting the item selected listener, the callback will be called every time
         // the user taps on the tab. But usually this activity will display one page per
         // navigation tab, and in that case we don't want the page to be recreated each time (and
@@ -50,6 +49,8 @@ abstract class VBEBottomNavigationActivity : AppCompatActivity() {
         // indicating which one is the first selected tab
         onNavigationItemSelected(navigation.menu.findItem(navigation.selectedItemId), false)
     }
+
+    override fun getContainer() = _container
 
     @MenuRes abstract fun menuRes(): Int
 

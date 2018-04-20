@@ -16,7 +16,7 @@ class HomeActivity : BaseActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        TestFABActivity::class.create(this)
+        TestBottomNavigationActivity::class.create(this)
     }
 }
 

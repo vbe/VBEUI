@@ -25,20 +25,19 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
         return true
     }
 
+    override val toolbarTitle = "TestBottomNavigationActivity"
+
 
     fun displayTata() {
-        container.removeAllViews()
-        container.addView(TextView(this).also { it.text = "TATA" })
+        setContent(TextView(this).also { it.text = "TATA" })
     }
 
     fun displayTiti() {
-        container.removeAllViews()
-        container.addView(TextView(this).also { it.text = "TITI" })
+        setContent(TextView(this).also { it.text = "TITI" })
     }
 
     fun displayToto() {
-        container.removeAllViews()
-        container.addView(TextView(this).also { it.text = "TOTO" })
+        setContent(TextView(this).also { it.text = "TOTO" })
     }
 
 }

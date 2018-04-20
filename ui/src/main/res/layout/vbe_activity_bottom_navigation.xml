@@ -6,13 +6,13 @@
         android:orientation="vertical">
 
         <FrameLayout
-            android:id="@+id/vbe_container"
+            android:id="@+id/vbe_activity_bottom_navigation_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"/>
 
         <android.support.design.widget.BottomNavigationView
-            android:id="@+id/vbe_navigation"
+            android:id="@+id/vbe_activity_bottom_navigation_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
