@@ -46,7 +46,7 @@ dependencies {
 
 
 group = 'fr.vbe.android'
-version = '0.0.3'
+version = '0.0.4'
 
 uploadArchives {
     repositories {
