@@ -11,4 +11,5 @@
     <dimen name="vbeui_margin_xxxl">64dp</dimen>
 
     <dimen name="vbeui_fab_margin">@dimen/vbeui_margin_m</dimen>
+    <dimen name="vbeui_action_button_size">48dp</dimen>
 </resources>
