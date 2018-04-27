@@ -1,8 +1,12 @@
 package fr.vbe.android.ui.test.activities
 
+import android.os.Bundle
 import android.view.MenuItem
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
 import fr.vbe.android.ui.activities.VBEBottomNavigationActivity
+import fr.vbe.android.ui.coordinator.Coordinator
 import fr.vbe.android.ui.test.R
 
 class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
@@ -15,6 +19,26 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
     override fun itemTextColor() = R.color.bottom_tab_text_color
     override fun itemIconTint() = R.color.bottom_tab_text_color
     override fun itemBackgroundResource() = R.drawable.bottom_tabs_backround
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val scrollView = ScrollView(this)
+
+        scrollView.addView(LinearLayout(this).also {
+            it.orientation = LinearLayout.VERTICAL
+            for (i in 0..100) {
+                it.addView(TextView(this@TestBottomNavigationActivity).also {
+                    it.text = "Coucou $i"
+                })
+            }
+        })
+
+        setContent(scrollView)
+
+        Coordinator.Builder.with(scrollView).build()
+    }
+
 
     override fun onNavigationItemSelected(item: MenuItem, userAction: Boolean): Boolean {
         when (item.itemId) {
