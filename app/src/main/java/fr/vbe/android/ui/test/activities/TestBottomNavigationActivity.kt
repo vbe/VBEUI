@@ -7,6 +7,7 @@ import android.widget.ScrollView
 import android.widget.TextView
 import fr.vbe.android.ui.activities.VBEBottomNavigationActivity
 import fr.vbe.android.ui.coordinator.Coordinator
+import fr.vbe.android.ui.coordinator.Down
 import fr.vbe.android.ui.test.R
 
 class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
@@ -36,7 +37,12 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
 
         setContent(scrollView)
 
-        Coordinator.Builder.with(scrollView).build()
+        Coordinator.Builder.with(scrollView)
+                .addBottomView(navigation, { when (it) {
+                    is Down -> Coordinator.Action.Hide()
+                    else -> null
+                }})
+                .build()
     }
 
 
