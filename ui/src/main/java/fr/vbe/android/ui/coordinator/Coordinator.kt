@@ -1,8 +1,6 @@
 package fr.vbe.android.ui.coordinator
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.util.Log
+import android.animation.ValueAnimator
 import android.view.View
 import android.view.ViewTreeObserver
 
@@ -13,11 +11,11 @@ class Coordinator internal constructor(
 
 ) : ViewTreeObserver.OnScrollChangedListener {
     var previousScroll = -1
-    val viewStates = mutableMapOf<View, State>()
+    val viewInfos = mutableMapOf<View, ViewInfo>()
 
     init {
         scrollingView.viewTreeObserver.addOnScrollChangedListener(this)
-        bottomViews.forEach { viewStates[it] = State.VISIBLE }
+        bottomViews.forEach { viewInfos[it] = ViewInfo(State.VISIBLE, 0f) }
     }
 
 
@@ -54,16 +52,19 @@ class Coordinator internal constructor(
     }
 
     private fun executeHide(view: View, position: Position) {
-        if (viewStates[view] == State.HIDDEN) return
-        view.animate()
-                .translationYBy(view.height.toFloat())
-                .setListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
-                        scrollingView.requestLayout()
-                    }
-                })
-                .start()
-        viewStates[view] = State.HIDDEN
+        val viewInfo = viewInfos[view]
+        if (viewInfo == null || viewInfo.state == State.HIDDEN) return
+        viewInfo.initialHeight = view.height.toFloat()
+
+        val animation = ValueAnimator.ofFloat(0f, viewInfo.initialHeight)
+        animation.addUpdateListener { updatedAnimation ->
+            val animatedValue = updatedAnimation.animatedValue as Float
+            view.translationY = animatedValue
+            view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - animatedValue).toInt() }
+        }
+        animation.start()
+
+        viewInfo.state = State.HIDDEN
     }
 
 
@@ -91,6 +92,8 @@ class Coordinator internal constructor(
     enum class Position {
         BOTTOM, TOP
     }
+
+    data class ViewInfo(var state: State, var initialHeight: Float)
 
     enum class State {
         HIDDEN, VISIBLE
