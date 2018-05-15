@@ -123,7 +123,7 @@ class Coordinator internal constructor(
     }
 
 
-    class Builder internal constructor(val scrollingView: View){
+    class Builder constructor(val scrollingView: View){
         private val bottomViews = mutableListOf<View>()
         private val behaviors = mutableMapOf<View, (Movement) -> (Action?)>()
 
@@ -136,11 +136,6 @@ class Coordinator internal constructor(
             behaviors[view] = behavior
             return this
         }
-
-        companion object {
-            fun with(scrollingView: View) = Builder(scrollingView)
-        }
-
     }
 
 

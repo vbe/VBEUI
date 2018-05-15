@@ -38,11 +38,10 @@ class TestBottomNavigationActivity : VBEBottomNavigationActivity() {
 
         setContent(scrollView)
 
-        Coordinator.Builder.with(scrollView)
+        Coordinator.Builder(scrollView)
                 .addBottomView(navigation, { when (it) {
                     is Down -> Coordinator.Action.Hide()
                     is Up -> Coordinator.Action.Show()
-                    else -> null
                 }})
                 .build()
     }

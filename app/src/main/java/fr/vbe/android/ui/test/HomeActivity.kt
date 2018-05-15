@@ -3,8 +3,9 @@ package fr.vbe.android.ui.test
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import fr.vbe.android.ui.test.activities.TestBottomNavigationActivity
+import fr.vbe.android.ui.test.activities.TestCoordinatorConfigurationActivity
 import kotlin.reflect.KClass
 
 /**
@@ -14,10 +15,12 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        TestBottomNavigationActivity::class.create(this)
+        TestCoordinatorConfigurationActivity::class.create(this)
     }
 }
 
-fun <A: Activity> KClass<A>.create(context: Context) {
-    context.startActivity(Intent(context, this.java))
+fun <A: Activity> KClass<A>.create(context: Context, bundle: Bundle? = null) {
+    context.startActivity(Intent(context, this.java).also {
+        if (bundle != null) it.putExtras(bundle)
+    })
 }
