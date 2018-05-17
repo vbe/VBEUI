@@ -10,6 +10,7 @@ import fr.vbe.android.ui.extensions.setNegativeBtn
 import fr.vbe.android.ui.extensions.setNeutralBtn
 import fr.vbe.android.ui.extensions.setPositiveBtn
 import fr.vbe.android.ui.test.activities.TestBottomNavigationActivity
+import fr.vbe.android.ui.test.activities.TestLayoutActivity
 import kotlin.reflect.KClass
 
 /**
@@ -20,13 +21,7 @@ class HomeActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        AlertDialog.Builder(this)
-                .setTitle(R.string.app_name)
-                .setMessage("Do you want to start TestBottomNavigationActivity?")
-                .setPositiveBtn("Yes", { TestBottomNavigationActivity::class.create(this) })
-                .setNegativeBtn("Nope", { Toast.makeText(this, "Well ok", Toast.LENGTH_SHORT).show() })
-                .setNeutralBtn("Hmmm", { Toast.makeText(this, "ok switzerland", Toast.LENGTH_SHORT).show() })
-                .show()
+        TestLayoutActivity::class.create(this)
     }
 }
 
