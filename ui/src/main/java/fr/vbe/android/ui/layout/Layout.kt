@@ -2,16 +2,22 @@ package fr.vbe.android.ui.layout
 
 import android.content.Context
 import android.view.View
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 
-abstract class Layout(context: Context, val content: LayoutBuilder.() -> Unit) {
-    val builder = LayoutBuilder(context)
+abstract class Layout<out LH: LayoutHolder>(context: Context, val holder: LH, val content: LayoutBuilder.() -> Unit) {
+    private val builder = LayoutBuilder(context)
 
-    fun build(): View {
+    fun build(): LH {
         content(builder)
-        return builder.view ?: throw IllegalStateException("Layout $this is empty.")
+        holder.root = builder.view ?: throw IllegalStateException("Layout $this is empty.")
+        return holder
     }
+}
+
+abstract class LayoutHolder {
+    var root: View? = null
 }
 
 open class LayoutBuilder(val context: Context) {
@@ -21,15 +27,21 @@ open class LayoutBuilder(val context: Context) {
         this.view = view
     }
 
-    fun textView(config: TextView.() -> Unit) {
-        addView(TextView(context).also(config))
+    private fun <V: View> V.alsoConfigureAndAdd(config: V.() -> Unit) = this.also {
+        config(it)
+        addView(it)
     }
 
-    fun linearLayout(config: LinearLayout.() -> Unit, content: GroupLayoutBuilder.() -> Unit) {
+    fun textView(config: TextView.() -> Unit): TextView = TextView(context).alsoConfigureAndAdd(config)
+
+    fun button(config: Button.() -> Unit): Button = Button(context).alsoConfigureAndAdd(config)
+
+    fun linearLayout(config: LinearLayout.() -> Unit, content: GroupLayoutBuilder.() -> Unit): LinearLayout {
         val linear = LinearLayout(context).also(config)
         val groupLayoutBuilder = GroupLayoutBuilder(context).also(content)
         groupLayoutBuilder.views.forEach { linear.addView(it) }
         addView(linear)
+        return linear
     }
 }
 
