@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<fr.vbe.android.ui.coordinator.OrchestratorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="TOP BAR"
+        android:layout_gravity="top"
+        android:gravity="center"
+        android:background="#a00"
+        android:textSize="18sp" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"/>
+    </ScrollView>
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="BOTTOM BAR"
+        android:layout_gravity="bottom"
+        android:gravity="center"
+        android:background="#a00"
+        android:textSize="18sp" />
+
+</fr.vbe.android.ui.coordinator.OrchestratorLayout>

@@ -1,18 +1,10 @@
 package fr.vbe.android.ui.test.activities
 
-import android.graphics.Color
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.view.Gravity
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.LinearLayout.LayoutParams
 import android.widget.ScrollView
-import android.widget.TextView
-import fr.vbe.android.ui.coordinator.Coordinator
-import fr.vbe.android.ui.coordinator.Down
-import fr.vbe.android.ui.coordinator.Movement
-import fr.vbe.android.ui.coordinator.Up
+import fr.vbe.android.ui.test.R
 
 class TestCoordinatorActivity : AppCompatActivity() {
 
@@ -25,49 +17,20 @@ class TestCoordinatorActivity : AppCompatActivity() {
         var bottomView: View? = null
         var scrollView: ScrollView? = null
 
-        setContentView(LinearLayout(this).also {
-            it.orientation = LinearLayout.VERTICAL
 
-            if (configuration.getBoolean(EXTRA_HAS_TOP_VIEW)) {
-                topView = TextView(this).also {
-                    it.textSize = 20F
-                    it.gravity = Gravity.CENTER
-                    it.setBackgroundColor(Color.RED)
-                    it.text = "TOP VIEW"
-                }
-                it.addView(topView, LayoutParams(LayoutParams.MATCH_PARENT, 200))
-            }
-
-            scrollView = ScrollView(this).also {
-                it.addView(LinearLayout(this).also {
-                    it.orientation = LinearLayout.VERTICAL
-                    for (i in 0..100) {
-                        it.addView(TextView(this).also { it.text = "Coucou $i" })
-                    }
-                })
-            }
-            it.addView(scrollView, LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
-
-            if (configuration.getBoolean(EXTRA_HAS_BOTTOM_VIEW)) {
-                bottomView = TextView(this).also {
-                    it.textSize = 20F
-                    it.gravity = Gravity.CENTER
-                    it.setBackgroundColor(Color.RED)
-                    it.text = "BOTTOM VIEW"
-                }
-                it.addView(bottomView, LayoutParams(LayoutParams.MATCH_PARENT, 200))
-            }
+        setContentView(when {
+            else -> R.layout.orchestrator_top_and_bottom
         })
 
-        scrollView?.let {
-            val coordinatorBuilder = Coordinator.Builder(it)
-            topView?.let {  }
-            bottomView?.let { coordinatorBuilder.addBottomView(it) { when(it) {
-                is Down -> Coordinator.Action.Hide()
-                is Up -> Coordinator.Action.Show()
-            }}}
-            coordinatorBuilder.build()
-        }
+//        scrollView?.let {
+//            val coordinatorBuilder = OrchestratorLayout.Builder(it)
+//            topView?.let {  }
+//            bottomView?.let { coordinatorBuilder.addBottomView(it) { when(it) {
+//                is Down -> OrchestratorLayout.Action.Hide()
+//                is Up -> OrchestratorLayout.Action.Show()
+//            }}}
+//            coordinatorBuilder.build()
+//        }
 
 
 
