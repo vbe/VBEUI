@@ -8,7 +8,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import fr.vbe.android.ui.test.create
 
-class TestCoordinatorConfigurationActivity : AppCompatActivity() {
+class TestOrchestratorConfigurationActivity : AppCompatActivity() {
 
     val configuration = Bundle()
 
@@ -20,16 +20,16 @@ class TestCoordinatorConfigurationActivity : AppCompatActivity() {
             it.orientation = LinearLayout.VERTICAL
 
             it.addView(checkBoxLine("Top view") {
-                configuration.putBoolean(TestCoordinatorActivity.EXTRA_HAS_TOP_VIEW, it)
+                configuration.putBoolean(TestOrchestratorActivity.EXTRA_HAS_TOP_VIEW, it)
             })
 
             it.addView(checkBoxLine("Bottom view") {
-                configuration.putBoolean(TestCoordinatorActivity.EXTRA_HAS_BOTTOM_VIEW, it)
+                configuration.putBoolean(TestOrchestratorActivity.EXTRA_HAS_BOTTOM_VIEW, it)
             })
 
             it.addView(Button(this).also {
                 it.text = "Start"
-                it.setOnClickListener { TestCoordinatorActivity::class.create(this, configuration) }
+                it.setOnClickListener { TestOrchestratorActivity::class.create(this, configuration) }
             })
         })
 

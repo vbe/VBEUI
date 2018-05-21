@@ -3,10 +3,12 @@ package fr.vbe.android.ui.test.activities
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.ScrollView
+import android.widget.TextView
 import fr.vbe.android.ui.test.R
 
-class TestCoordinatorActivity : AppCompatActivity() {
+class TestOrchestratorActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,6 +23,12 @@ class TestCoordinatorActivity : AppCompatActivity() {
         setContentView(when {
             else -> R.layout.orchestrator_top_and_bottom
         })
+
+        findViewById<LinearLayout>(R.id.content).let {
+            for (i in 0..100) {
+                it.addView(TextView(this).also { it.text = "Coucou $i"})
+            }
+        }
 
 //        scrollView?.let {
 //            val coordinatorBuilder = OrchestratorLayout.Builder(it)

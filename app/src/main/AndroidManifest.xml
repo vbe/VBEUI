@@ -17,8 +17,8 @@
         </activity>
         <activity android:name=".activities.TestBottomNavigationActivity" />
         <activity android:name=".activities.TestFABActivity" />
-        <activity android:name=".activities.TestCoordinatorConfigurationActivity" />
-        <activity android:name=".activities.TestCoordinatorActivity" />
+        <activity android:name=".activities.TestOrchestratorConfigurationActivity" />
+        <activity android:name=".activities.TestOrchestratorActivity" />
 
 
     </application>

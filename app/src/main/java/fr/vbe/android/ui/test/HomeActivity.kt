@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import fr.vbe.android.ui.test.activities.TestCoordinatorConfigurationActivity
+import fr.vbe.android.ui.test.activities.TestOrchestratorConfigurationActivity
 import kotlin.reflect.KClass
 
 /**
@@ -15,7 +15,7 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        TestCoordinatorConfigurationActivity::class.create(this)
+        TestOrchestratorConfigurationActivity::class.create(this)
     }
 }
 
