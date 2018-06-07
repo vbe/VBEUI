@@ -36,9 +36,32 @@ class OrchestratorLayout /*constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        logIfDebug("onMeasure, $content")
+        logIfDebug("onMeasure|==========| w=$widthMeasureSpec h=$heightMeasureSpec")
 
     }
+
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
+        logIfDebug("onLayout|==========| chd?$changed l=$left t=$top r=$right b=$bottom")
+
+        val totalHeight = bottom - top
+        // first computing the height of the scrolling content
+        // which is the total height minus the aggregate height of all other children
+        val contentHeight = totalHeight - children().filter { it != content }.sumBy { it.height }
+
+        var childTop = top
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+//          logIfDebug("onLayout|| ch=${child::class.java.simpleName} ch.h=${child.height}")
+            // computing the bottom position of the child, layouting the child, then updating
+            // the top position of the next child
+            val childBottom = childTop + if (child == content) contentHeight else child.height
+            child.layout(left, childTop, right, childBottom)
+            childTop = childBottom
+        }
+    }
+
+    fun children() = (0 until childCount).map { getChildAt(it) }
 
 
 
