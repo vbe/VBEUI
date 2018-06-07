@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fr.vbe.android.ui.coordinator.OrchestratorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<fr.vbe.android.ui.coordinator.OrchestratorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:Orchestrator_content="@+id/scroll">
 
     <TextView
         android:layout_width="match_parent"
@@ -13,6 +15,7 @@
         android:textSize="18sp" />
 
     <ScrollView
+        android:id="@+id/scroll"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout

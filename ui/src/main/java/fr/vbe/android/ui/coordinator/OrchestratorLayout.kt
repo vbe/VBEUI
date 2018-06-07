@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
+import fr.vbe.android.ui.R
 
 class OrchestratorLayout /*constructor(
         val scrollingView: View,
@@ -17,19 +18,50 @@ class OrchestratorLayout /*constructor(
         val behaviors: Map<View, (Movement) -> (Action?)>
 
 )*/ : FrameLayout, ViewTreeObserver.OnScrollChangedListener {
-    var previousScroll = 0
-    var isDoingAnimation = false
-    val viewInfos = mutableMapOf<View, ViewInfo>()
+
+    private var contentId: Int = -1
+    private val content by lazy { findViewById<View>(contentId) }
 
     constructor(context: Context): this(context, null, 0)
     constructor(context: Context, attributeSet: AttributeSet?): this(context, attributeSet, 0)
     constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int): super(context, attributeSet, defStyleAttr) {
 
+        if (attributeSet != null) {
+            val array = context.theme.obtainStyledAttributes(attributeSet, R.styleable.OrchestratorLayout, defStyleAttr, 0)
+            contentId = array.getResourceId(R.styleable.OrchestratorLayout_Orchestrator_content, -1)
+        }
 
+        if (contentId == -1) throw IllegalArgumentException("Must specify a content")
+    }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        logIfDebug("onMeasure, $content")
 
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    var previousScroll = 0
+    var isDoingAnimation = false
+    val viewInfos = mutableMapOf<View, ViewInfo>()
 
     init {
 //        scrollingView.viewTreeObserver.addOnScrollChangedListener(this)
@@ -175,6 +207,8 @@ class OrchestratorLayout /*constructor(
         class Hide : Action()
         class Show : Action()
     }
+
+    fun logIfDebug(log: String) = if (DEBUG) Log.d(LOG_TAG, log) else 0
 
     companion object {
         const val DEBUG = true
