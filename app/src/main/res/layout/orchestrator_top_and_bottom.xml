@@ -11,7 +11,9 @@
         android:text="TOP BAR"
         android:gravity="center"
         android:background="#a00"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        app:layout_scrollDown_behavior="hide"
+        app:layout_scrollUp_behavior="show"/>
 
     <ScrollView
         android:id="@+id/scroll"
@@ -31,6 +33,8 @@
         android:text="BOTTOM BAR"
         android:gravity="center"
         android:background="#a00"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        app:layout_scrollDown_behavior="hide"
+        app:layout_scrollUp_behavior="show"/>
 
 </fr.vbe.android.ui.coordinator.OrchestratorLayout>

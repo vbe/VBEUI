@@ -8,6 +8,7 @@ import android.support.annotation.CallSuper
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import fr.vbe.android.ui.R
@@ -29,6 +30,7 @@ class OrchestratorLayout /*constructor(
         if (attributeSet != null) {
             val array = context.theme.obtainStyledAttributes(attributeSet, R.styleable.OrchestratorLayout, defStyleAttr, 0)
             contentId = array.getResourceId(R.styleable.OrchestratorLayout_Orchestrator_content, -1)
+            array.recycle()
         }
 
         if (contentId == -1) throw IllegalArgumentException("Must specify a content")
@@ -62,6 +64,44 @@ class OrchestratorLayout /*constructor(
     }
 
     fun children() = (0 until childCount).map { getChildAt(it) }
+
+
+    // ==================
+    //region LayoutParams
+
+    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
+        return LayoutParams(context, attrs)
+    }
+
+    override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
+
+
+
+    class LayoutParams : FrameLayout.LayoutParams {
+        var scrollDownBehavior: Int = NOTHING
+        var scrollUpBehavior: Int = NOTHING
+
+        constructor(width: Int, height: Int) : super(width, height)
+        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+            if (attrs != null) {
+                val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
+
+                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollDown_behavior, NOTHING)
+                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollUp_behavior, NOTHING)
+
+                array.recycle()
+            }
+        }
+
+        companion object {
+            const val NOTHING = -1
+            const val BEHAVIOR_HIDE = 0
+            const val BEHAVIOR_SHOW = 1
+        }
+    }
+
+    //endregion LayoutParams
+    // =====================
 
 
 

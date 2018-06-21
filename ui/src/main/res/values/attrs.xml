@@ -4,6 +4,17 @@
     <declare-styleable name="OrchestratorLayout">
         <attr name="Orchestrator_content" format="reference" />
     </declare-styleable>
+    <declare-styleable name="OrchestratorLayout_Layout">
+
+        <attr name="layout_scrollDown_behavior" format="enum">
+            <enum name="hide" value="0"/>
+            <enum name="show" value="1"/>
+        </attr>
+        <attr name="layout_scrollUp_behavior" format="enum">
+            <enum name="hide" value="0"/>
+            <enum name="show" value="1"/>
+        </attr>
+    </declare-styleable>
 
 
 </resources>
