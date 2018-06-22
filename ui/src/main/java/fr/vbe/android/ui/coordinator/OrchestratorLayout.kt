@@ -21,11 +21,15 @@ class OrchestratorLayout /*constructor(
 )*/ : FrameLayout, ViewTreeObserver.OnScrollChangedListener {
 
     private var contentId: Int = -1
-    private val content by lazy { findViewById<View>(contentId) }
+    private val content by lazy {
+        findViewById<View>(contentId).also {
+            it.viewTreeObserver.addOnScrollChangedListener(this)
+        }
+    }
 
-    constructor(context: Context): this(context, null, 0)
-    constructor(context: Context, attributeSet: AttributeSet?): this(context, attributeSet, 0)
-    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int): super(context, attributeSet, defStyleAttr) {
+    constructor(context: Context) : this(context, null, 0)
+    constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0)
+    constructor(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int) : super(context, attributeSet, defStyleAttr) {
 
         if (attributeSet != null) {
             val array = context.theme.obtainStyledAttributes(attributeSet, R.styleable.OrchestratorLayout, defStyleAttr, 0)
@@ -36,6 +40,12 @@ class OrchestratorLayout /*constructor(
         if (contentId == -1) throw IllegalArgumentException("Must specify a content")
     }
 
+
+    // ===============
+    //region Layouting
+
+    var isFirstLayoutPass = true
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         logIfDebug("onMeasure|==========| w=$widthMeasureSpec h=$heightMeasureSpec")
@@ -45,6 +55,8 @@ class OrchestratorLayout /*constructor(
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         logIfDebug("onLayout|==========| chd?$changed l=$left t=$top r=$right b=$bottom")
+
+        if (isFirstLayoutPass) doFirstPass()
 
         val totalHeight = bottom - top
         // first computing the height of the scrolling content
@@ -63,74 +75,38 @@ class OrchestratorLayout /*constructor(
         }
     }
 
-    fun children() = (0 until childCount).map { getChildAt(it) }
+    private fun doFirstPass() {
+        logIfDebug("doFirstPass|==========|")
+        for (child in children()) {
+            val lp = child.layoutParams as LayoutParams
+
+            when (lp.scrollDownBehavior) {
+                LayoutParams.NOTHING -> logIfDebug("doFirstPass|| when scrollDOWN NOTHING for $child")
+                LayoutParams.BEHAVIOR_HIDE -> logIfDebug("doFirstPass|| when scrollDOWN HIDE $child")
+                LayoutParams.BEHAVIOR_SHOW -> logIfDebug("doFirstPass|| when scrollDOWN SHOW $child")
+            }
 
 
-    // ==================
-    //region LayoutParams
-
-    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
-        return LayoutParams(context, attrs)
-    }
-
-    override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
-
-
-
-    class LayoutParams : FrameLayout.LayoutParams {
-        var scrollDownBehavior: Int = NOTHING
-        var scrollUpBehavior: Int = NOTHING
-
-        constructor(width: Int, height: Int) : super(width, height)
-        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-            if (attrs != null) {
-                val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
-
-                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollDown_behavior, NOTHING)
-                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollUp_behavior, NOTHING)
-
-                array.recycle()
+            when (lp.scrollUpBehavior) {
+                LayoutParams.NOTHING -> logIfDebug("doFirstPass|| when scrollUP NOTHING for $child")
+                LayoutParams.BEHAVIOR_HIDE -> logIfDebug("doFirstPass|| when scrollUP HIDE $child")
+                LayoutParams.BEHAVIOR_SHOW -> logIfDebug("doFirstPass|| when scrollUP SHOW $child")
             }
         }
-
-        companion object {
-            const val NOTHING = -1
-            const val BEHAVIOR_HIDE = 0
-            const val BEHAVIOR_SHOW = 1
-        }
+        isFirstLayoutPass = false
     }
 
-    //endregion LayoutParams
-    // =====================
+    fun children() = (0 until childCount).map { getChildAt(it) }
+
+    //endregion Layouting
+    // ==================
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    //================
+    //region Animation
 
     var previousScroll = 0
     var isDoingAnimation = false
-    val viewInfos = mutableMapOf<View, ViewInfo>()
-
-    init {
-//        scrollingView.viewTreeObserver.addOnScrollChangedListener(this)
-//        bottomViews.forEach { viewInfos[it] = ViewInfo(State.VISIBLE, -1f, it.layoutParams.height) }
-    }
-
 
     override fun onScrollChanged() {
 //        val scrollY = scrollingView.scrollY
@@ -163,6 +139,65 @@ class OrchestratorLayout /*constructor(
 //                executeAction(action, view, Position.BOTTOM)
 //            }
 //        }
+    }
+
+
+    //endregion Animation
+    //===================
+
+
+    // ==================
+    //region LayoutParams
+
+    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
+        return LayoutParams(context, attrs)
+    }
+
+    override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
+
+    class LayoutParams : FrameLayout.LayoutParams {
+        var scrollDownBehavior: Int = NOTHING
+        var scrollUpBehavior: Int = NOTHING
+
+        constructor(width: Int, height: Int) : super(width, height)
+        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+            if (attrs != null) {
+                val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
+
+                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollDown_behavior, NOTHING)
+                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollUp_behavior, NOTHING)
+
+                array.recycle()
+            }
+        }
+
+        public companion object {
+            const val NOTHING = -1
+            const val BEHAVIOR_HIDE = 0
+            const val BEHAVIOR_SHOW = 1
+        }
+    }
+
+    //endregion LayoutParams
+    // =====================
+
+    fun logIfDebug(log: String) = if (DEBUG) Log.d(LOG_TAG, log) else 0
+
+
+
+
+
+
+
+
+
+
+
+
+    val viewInfos = mutableMapOf<View, ViewInfo>()
+
+    init {
+//        bottomViews.forEach { viewInfos[it] = ViewInfo(State.VISIBLE, -1f, it.layoutParams.height) }
     }
 
     private fun executeAction(action: Action, view: View, position: Position) {
@@ -260,7 +295,6 @@ class OrchestratorLayout /*constructor(
     }
 
 
-
 //    sealed class Speed(factor: Float) {
 //        TimedSpeed()
 //    }
@@ -271,15 +305,12 @@ class OrchestratorLayout /*constructor(
         class Show : Action()
     }
 
-    fun logIfDebug(log: String) = if (DEBUG) Log.d(LOG_TAG, log) else 0
-
     companion object {
         const val DEBUG = true
         const val LOG_TAG = "OrchestratorLayout"
         const val SCROLLING_THRESHOLD = 20
     }
 }
-
 
 
 sealed class Movement(open val distance: Int)
