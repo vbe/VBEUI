@@ -3,9 +3,11 @@
 ## TODO
 
 - create() -> VBEBase
+- KTX
 
 ### Orchestrator
 
+- Redefine behaviors : whenContent="scrolls_down_hide|scrolls_up_show"
 - Define simple hide when scrolling behaviors of the other views in XML - bottom bar
 - Define simple hide when scrolling behaviors of the other views in XML - bottom bar + top bar
 - Define simple hide when scrolling behaviors of the other views in XML - bottom bar + top bar + fab

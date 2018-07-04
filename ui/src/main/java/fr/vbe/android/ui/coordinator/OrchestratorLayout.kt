@@ -20,12 +20,17 @@ class OrchestratorLayout /*constructor(
 
 )*/ : FrameLayout, ViewTreeObserver.OnScrollChangedListener {
 
+    // Scrolling content
     private var contentId: Int = -1
     private val content by lazy {
         findViewById<View>(contentId).also {
             it.viewTreeObserver.addOnScrollChangedListener(this)
         }
     }
+
+    // Views reacting to scrolling content movements
+    private val reactingViews = Movement.allClasses().associate { Pair(it, mutableSetOf<View>()) }
+
 
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0)
@@ -80,22 +85,18 @@ class OrchestratorLayout /*constructor(
         for (child in children()) {
             val lp = child.layoutParams as LayoutParams
 
-            when (lp.scrollDownBehavior) {
-                LayoutParams.NOTHING -> logIfDebug("doFirstPass|| when scrollDOWN NOTHING for $child")
-                LayoutParams.BEHAVIOR_HIDE -> logIfDebug("doFirstPass|| when scrollDOWN HIDE $child")
-                LayoutParams.BEHAVIOR_SHOW -> logIfDebug("doFirstPass|| when scrollDOWN SHOW $child")
+            lp.scrollDownAction?.let {
+                reactingViews[Down::class]?.add(child)
             }
 
-
-            when (lp.scrollUpBehavior) {
-                LayoutParams.NOTHING -> logIfDebug("doFirstPass|| when scrollUP NOTHING for $child")
-                LayoutParams.BEHAVIOR_HIDE -> logIfDebug("doFirstPass|| when scrollUP HIDE $child")
-                LayoutParams.BEHAVIOR_SHOW -> logIfDebug("doFirstPass|| when scrollUP SHOW $child")
+            lp.scrollUpAction?.let {
+                reactingViews[Up::class]?.add(child)
             }
         }
         isFirstLayoutPass = false
     }
 
+    // TODO KTX
     fun children() = (0 until childCount).map { getChildAt(it) }
 
     //endregion Layouting
@@ -109,7 +110,7 @@ class OrchestratorLayout /*constructor(
     var isDoingAnimation = false
 
     override fun onScrollChanged() {
-//        val scrollY = scrollingView.scrollY
+        val scrollY = content.scrollY
         if (scrollY < 0) {
             if (DEBUG) Log.d(LOG_TAG, "[onScrollChanged] Scrolling ignored (negative) $scrollY")
             return
@@ -133,6 +134,11 @@ class OrchestratorLayout /*constructor(
 
     private fun handleMovement(movement: Movement) {
         if (DEBUG) Log.d(LOG_TAG, "[handleMovement] $movement")
+
+        reactingViews[movement::class]?.forEach {
+            if (DEBUG) Log.d(LOG_TAG, "handleMovement|| $it should react!")
+        }
+
 //        bottomViews.forEach { view ->
 //            val action = behaviors[view]?.invoke(movement)
 //            if (action != null) {
@@ -156,8 +162,13 @@ class OrchestratorLayout /*constructor(
     override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
 
     class LayoutParams : FrameLayout.LayoutParams {
-        var scrollDownBehavior: Int = NOTHING
-        var scrollUpBehavior: Int = NOTHING
+        // private raw attributes extracted from the layout
+        private var scrollDownBehavior: Int = NOTHING
+        private var scrollUpBehavior: Int = NOTHING
+        // computed attributes
+        val scrollDownAction by lazy { getAction(scrollDownBehavior) }
+        val scrollUpAction by lazy { getAction(scrollUpBehavior) }
+
 
         constructor(width: Int, height: Int) : super(width, height)
         constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -169,6 +180,12 @@ class OrchestratorLayout /*constructor(
 
                 array.recycle()
             }
+        }
+
+        private fun getAction(behavior: Int) = when (behavior) {
+            BEHAVIOR_SHOW -> Action.Show()
+            BEHAVIOR_HIDE -> Action.Hide()
+            else -> null
         }
 
         public companion object {
@@ -303,6 +320,10 @@ class OrchestratorLayout /*constructor(
     sealed class Action {
         class Hide : Action()
         class Show : Action()
+
+        companion object {
+            fun all() = listOf(Hide(), Show())
+        }
     }
 
     companion object {
@@ -313,6 +334,11 @@ class OrchestratorLayout /*constructor(
 }
 
 
-sealed class Movement(open val distance: Int)
+sealed class Movement(open val distance: Int) {
+
+    companion object {
+        fun allClasses() = listOf(Down::class, Up::class)
+    }
+}
 data class Down(override val distance: Int) : Movement(distance)
 data class Up(override val distance: Int) : Movement(distance)
