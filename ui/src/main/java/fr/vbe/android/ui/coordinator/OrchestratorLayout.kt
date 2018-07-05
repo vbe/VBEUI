@@ -113,7 +113,8 @@ class OrchestratorLayout /*constructor(
     //region Actions, Animations
 
     var previousScroll = 0
-    var isDoingAnimation = false
+    var animationCounter = 0
+    fun isDoingAnimation() = animationCounter > 0
 
     override fun onScrollChanged() {
         val scrollY = content.scrollY
@@ -121,7 +122,7 @@ class OrchestratorLayout /*constructor(
             if (DEBUG) Log.d(LOG_TAG, "[onScrollChanged] Scrolling ignored (negative) $scrollY")
             return
         }
-        if (isDoingAnimation) {
+        if (isDoingAnimation()) {
             if (DEBUG) Log.d(LOG_TAG, "[onScrollChanged] Animation in progress")
             previousScroll = scrollY
         }
@@ -173,12 +174,12 @@ class OrchestratorLayout /*constructor(
 
         val animation = ValueAnimator.ofFloat(0f, viewInfo.initialHeight)
         animation.addUpdateListener { updatedAnimation ->
-            isDoingAnimation = true
             val animatedValue = updatedAnimation.animatedValue as Float
             view.translationY = animatedValue
             view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - animatedValue).toInt() }
         }
         animation.addListener(CoordinatorAnimatorListenerAdapter())
+        animationCounter++
         animation.start()
 
         viewInfo.state = State.HIDDEN
@@ -191,7 +192,6 @@ class OrchestratorLayout /*constructor(
 
         val animation = ValueAnimator.ofFloat(viewInfo.initialHeight, 0f)
         animation.addUpdateListener { updatedAnimation ->
-            isDoingAnimation = true
             val animatedValue = updatedAnimation.animatedValue as Float
             view.translationY = animatedValue
             view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - animatedValue).toInt() }
@@ -202,6 +202,7 @@ class OrchestratorLayout /*constructor(
                 view.layoutParams = view.layoutParams.also { it.height = viewInfo.initialHeightParam }
             }
         })
+        animationCounter++
         animation.start()
 
         viewInfo.state = State.VISIBLE
@@ -210,11 +211,7 @@ class OrchestratorLayout /*constructor(
     open inner class CoordinatorAnimatorListenerAdapter : AnimatorListenerAdapter() {
         @CallSuper
         override fun onAnimationEnd(animation: Animator?) {
-            isDoingAnimation = false
-        }
-
-        override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
-            isDoingAnimation = false
+            animationCounter--
         }
     }
 
