@@ -31,6 +31,8 @@ class OrchestratorLayout /*constructor(
     // Views reacting to scrolling content movements
     private val reactingViews = Movement.allClasses().associate { Pair(it, mutableSetOf<View>()) }
 
+    private val viewInfos = mutableMapOf<View, ViewInfo>()
+
 
     constructor(context: Context) : this(context, null, 0)
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0)
@@ -83,6 +85,8 @@ class OrchestratorLayout /*constructor(
     private fun doFirstPass() {
         logIfDebug("doFirstPass|==========|")
         for (child in children()) {
+            if (child == content) continue
+
             val lp = child.layoutParams as LayoutParams
 
             lp.scrollDownAction?.let {
@@ -92,6 +96,8 @@ class OrchestratorLayout /*constructor(
             lp.scrollUpAction?.let {
                 reactingViews[Up::class]?.add(child)
             }
+
+            viewInfos[child] = ViewInfo(State.VISIBLE, -1f, child.layoutParams.height)
         }
         isFirstLayoutPass = false
     }
@@ -103,8 +109,8 @@ class OrchestratorLayout /*constructor(
     // ==================
 
 
-    //================
-    //region Animation
+    //==========================
+    //region Actions, Animations
 
     var previousScroll = 0
     var isDoingAnimation = false
@@ -147,81 +153,6 @@ class OrchestratorLayout /*constructor(
     }
 
 
-    //endregion Animation
-    //===================
-
-
-    // ==================
-    //region LayoutParams
-
-    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
-        return LayoutParams(context, attrs)
-    }
-
-    override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
-
-    private fun View.myLayoutParams() = this.layoutParams as LayoutParams
-
-    class LayoutParams : FrameLayout.LayoutParams {
-        // private raw attributes extracted from the layout
-        private var scrollDownBehavior: Int = NOTHING
-        private var scrollUpBehavior: Int = NOTHING
-        // computed attributes
-        val scrollDownAction by lazy { getAction(scrollDownBehavior) }
-        val scrollUpAction by lazy { getAction(scrollUpBehavior) }
-
-
-        constructor(width: Int, height: Int) : super(width, height)
-        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-            if (attrs != null) {
-                val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
-
-                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollDown_behavior, NOTHING)
-                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollUp_behavior, NOTHING)
-
-                array.recycle()
-            }
-        }
-
-        fun getAction(movement: Movement) = when(movement) {
-            is Down -> scrollDownAction
-            is Up -> scrollUpAction
-        }
-
-        private fun getAction(behavior: Int) = when (behavior) {
-            BEHAVIOR_SHOW -> Action.Show()
-            BEHAVIOR_HIDE -> Action.Hide()
-            else -> null
-        }
-
-        companion object {
-            const val NOTHING = -1
-            const val BEHAVIOR_HIDE = 0
-            const val BEHAVIOR_SHOW = 1
-        }
-    }
-
-    //endregion LayoutParams
-    // =====================
-
-    fun logIfDebug(log: String) = if (DEBUG) Log.d(LOG_TAG, log) else 0
-
-
-
-
-
-
-
-
-
-
-
-
-    val viewInfos = mutableMapOf<View, ViewInfo>()
-
-    init {
-//        bottomViews.forEach { viewInfos[it] = ViewInfo(State.VISIBLE, -1f, it.layoutParams.height) }
-    }
 
     private fun executeAction(action: Action, view: View) {
         if (DEBUG) Log.d(LOG_TAG, "[executeAction] ${action::class.java.simpleName} on ${view::class.java.simpleName}")
@@ -285,6 +216,82 @@ class OrchestratorLayout /*constructor(
         override fun onAnimationEnd(animation: Animator?, isReverse: Boolean) {
             isDoingAnimation = false
         }
+    }
+
+
+    //endregion Actions, Animations
+    //=============================
+
+
+    // ==================
+    //region LayoutParams
+
+    override fun generateLayoutParams(attrs: AttributeSet?): LayoutParams {
+        return LayoutParams(context, attrs)
+    }
+
+    override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
+
+    private fun View.myLayoutParams() = this.layoutParams as LayoutParams
+
+    class LayoutParams : FrameLayout.LayoutParams {
+        // private raw attributes extracted from the layout
+        private var scrollDownBehavior: Int = NOTHING
+        private var scrollUpBehavior: Int = NOTHING
+        // computed attributes
+        val scrollDownAction by lazy { getAction(scrollDownBehavior) }
+        val scrollUpAction by lazy { getAction(scrollUpBehavior) }
+
+
+        constructor(width: Int, height: Int) : super(width, height)
+        constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
+            if (attrs != null) {
+                val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
+
+                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollDown_behavior, NOTHING)
+                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollUp_behavior, NOTHING)
+
+                array.recycle()
+            }
+        }
+
+        fun getAction(movement: Movement) = when(movement) {
+            is Down -> scrollDownAction
+            is Up -> scrollUpAction
+        }
+
+        private fun getAction(behavior: Int) = when (behavior) {
+            BEHAVIOR_SHOW -> Action.Show()
+            BEHAVIOR_HIDE -> Action.Hide()
+            else -> null
+        }
+
+        companion object {
+            const val NOTHING = -1
+            const val BEHAVIOR_HIDE = 0
+            const val BEHAVIOR_SHOW = 1
+        }
+    }
+
+    //endregion LayoutParams
+    // =====================
+
+
+    fun logIfDebug(log: String) = if (DEBUG) Log.d(LOG_TAG, log) else 0
+
+
+
+
+
+
+
+
+
+
+
+
+    init {
+//        bottomViews.forEach { viewInfos[it] = ViewInfo(State.VISIBLE, -1f, it.layoutParams.height) }
     }
 
 
