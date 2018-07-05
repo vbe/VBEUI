@@ -134,9 +134,8 @@ class OrchestratorLayout /*constructor(
 
     private fun handleMovement(movement: Movement) {
         if (DEBUG) Log.d(LOG_TAG, "[handleMovement] $movement")
-
-        reactingViews[movement::class]?.forEach {
-            if (DEBUG) Log.d(LOG_TAG, "handleMovement|| $it should react!")
+        reactingViews[movement::class]?.forEach { view ->
+            view.myLayoutParams().getAction(movement)?.let { executeAction(it, view) }
         }
 
 //        bottomViews.forEach { view ->
@@ -161,6 +160,8 @@ class OrchestratorLayout /*constructor(
 
     override fun checkLayoutParams(p: ViewGroup.LayoutParams?) = p is LayoutParams
 
+    private fun View.myLayoutParams() = this.layoutParams as LayoutParams
+
     class LayoutParams : FrameLayout.LayoutParams {
         // private raw attributes extracted from the layout
         private var scrollDownBehavior: Int = NOTHING
@@ -182,13 +183,18 @@ class OrchestratorLayout /*constructor(
             }
         }
 
+        fun getAction(movement: Movement) = when(movement) {
+            is Down -> scrollDownAction
+            is Up -> scrollUpAction
+        }
+
         private fun getAction(behavior: Int) = when (behavior) {
             BEHAVIOR_SHOW -> Action.Show()
             BEHAVIOR_HIDE -> Action.Hide()
             else -> null
         }
 
-        public companion object {
+        companion object {
             const val NOTHING = -1
             const val BEHAVIOR_HIDE = 0
             const val BEHAVIOR_SHOW = 1
@@ -217,18 +223,18 @@ class OrchestratorLayout /*constructor(
 //        bottomViews.forEach { viewInfos[it] = ViewInfo(State.VISIBLE, -1f, it.layoutParams.height) }
     }
 
-    private fun executeAction(action: Action, view: View, position: Position) {
-        if (DEBUG) Log.d(LOG_TAG, "[executeAction] ${action::class.java.simpleName} on ${view::class.java.simpleName} at $position")
+    private fun executeAction(action: Action, view: View) {
+        if (DEBUG) Log.d(LOG_TAG, "[executeAction] ${action::class.java.simpleName} on ${view::class.java.simpleName}")
         when (action) {
-            is Action.Hide -> executeHide(view, position)
-            is Action.Show -> executeShow(view, position)
+            is Action.Hide -> executeHide(view)
+            is Action.Show -> executeShow(view)
         }
     }
 
-    private fun executeHide(view: View, position: Position) {
+    private fun executeHide(view: View) {
         val viewInfo = viewInfos[view]
         if (viewInfo == null || viewInfo.state == State.HIDDEN) return
-        if (DEBUG) Log.d(LOG_TAG, "[executeHide] on ${view::class.java.simpleName} at $position")
+        if (DEBUG) Log.d(LOG_TAG, "[executeHide] on ${view::class.java.simpleName}")
         // view infos initial height initialization
         if (viewInfo.initialHeight == -1f) {
             viewInfo.initialHeight = view.height.toFloat()
@@ -247,10 +253,10 @@ class OrchestratorLayout /*constructor(
         viewInfo.state = State.HIDDEN
     }
 
-    private fun executeShow(view: View, position: Position) {
+    private fun executeShow(view: View) {
         val viewInfo = viewInfos[view]
         if (viewInfo == null || viewInfo.state == State.VISIBLE) return
-        if (DEBUG) Log.d(LOG_TAG, "[executeShow] on ${view::class.java.simpleName} at $position")
+        if (DEBUG) Log.d(LOG_TAG, "[executeShow] on ${view::class.java.simpleName}")
 
         val animation = ValueAnimator.ofFloat(viewInfo.initialHeight, 0f)
         animation.addUpdateListener { updatedAnimation ->
