@@ -84,8 +84,12 @@ class OrchestratorLayout /*constructor(
 
     private fun doFirstPass() {
         logIfDebug("doFirstPass|==========|")
+        var position = Position.TOP
         for (child in children()) {
-            if (child == content) continue
+            if (child == content){
+                position = Position.BOTTOM
+                continue
+            }
 
             val lp = child.layoutParams as LayoutParams
 
@@ -97,7 +101,7 @@ class OrchestratorLayout /*constructor(
                 reactingViews[Up::class]?.add(child)
             }
 
-            viewInfos[child] = ViewInfo(State.VISIBLE, -1f, child.layoutParams.height)
+            viewInfos[child] = ViewInfo(State.VISIBLE, -1f, child.layoutParams.height, position)
         }
         isFirstLayoutPass = false
     }
@@ -172,11 +176,13 @@ class OrchestratorLayout /*constructor(
             viewInfo.initialHeight = view.height.toFloat()
         }
 
-        val animation = ValueAnimator.ofFloat(0f, viewInfo.initialHeight)
+        val factor = if (viewInfo.position == Position.TOP) -1 else 1
+
+        val animation = ValueAnimator.ofFloat(0f, factor * viewInfo.initialHeight)
         animation.addUpdateListener { updatedAnimation ->
             val animatedValue = updatedAnimation.animatedValue as Float
             view.translationY = animatedValue
-            view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - animatedValue).toInt() }
+            view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - factor * animatedValue).toInt() }
         }
         animation.addListener(CoordinatorAnimatorListenerAdapter())
         animationCounter++
@@ -190,11 +196,13 @@ class OrchestratorLayout /*constructor(
         if (viewInfo == null || viewInfo.state == State.VISIBLE) return
         if (DEBUG) Log.d(LOG_TAG, "[executeShow] on ${view::class.java.simpleName}")
 
-        val animation = ValueAnimator.ofFloat(viewInfo.initialHeight, 0f)
+        val factor = if (viewInfo.position == Position.TOP) -1 else 1
+
+        val animation = ValueAnimator.ofFloat(factor * viewInfo.initialHeight, 0f)
         animation.addUpdateListener { updatedAnimation ->
             val animatedValue = updatedAnimation.animatedValue as Float
             view.translationY = animatedValue
-            view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - animatedValue).toInt() }
+            view.layoutParams = view.layoutParams.also { it.height = (viewInfo.initialHeight - factor * animatedValue).toInt() }
         }
         animation.addListener(object : CoordinatorAnimatorListenerAdapter() {
             override fun onAnimationEnd(animation: Animator?) {
@@ -315,7 +323,8 @@ class OrchestratorLayout /*constructor(
     data class ViewInfo(
             var state: State,
             var initialHeight: Float,
-            var initialHeightParam: Int)
+            var initialHeightParam: Int,
+            val position: Position)
 
     enum class State {
         HIDDEN, VISIBLE
