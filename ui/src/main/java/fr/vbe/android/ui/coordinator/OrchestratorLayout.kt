@@ -253,8 +253,8 @@ class OrchestratorLayout /*constructor(
             if (attrs != null) {
                 val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
 
-                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollDown_behavior, NOTHING)
-                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_layout_scrollUp_behavior, NOTHING)
+                scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_whenContentScrollsDown, NOTHING)
+                scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_whenContentScrollsUp, NOTHING)
 
                 array.recycle()
             }

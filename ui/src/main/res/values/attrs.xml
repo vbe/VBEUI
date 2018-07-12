@@ -6,11 +6,11 @@
     </declare-styleable>
     <declare-styleable name="OrchestratorLayout_Layout">
 
-        <attr name="layout_scrollDown_behavior" format="enum">
+        <attr name="whenContentScrollsDown" format="enum">
             <enum name="hide" value="0"/>
             <enum name="show" value="1"/>
         </attr>
-        <attr name="layout_scrollUp_behavior" format="enum">
+        <attr name="whenContentScrollsUp" format="enum">
             <enum name="hide" value="0"/>
             <enum name="show" value="1"/>
         </attr>
