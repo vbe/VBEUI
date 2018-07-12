@@ -14,6 +14,10 @@
             <enum name="hide" value="0"/>
             <enum name="show" value="1"/>
         </attr>
+        <attr name="relationToContent" format="enum">
+            <enum name="encloses" value="0"/>
+            <enum name="over" value="1"/>
+        </attr>
     </declare-styleable>
 
 

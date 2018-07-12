@@ -240,12 +240,21 @@ class OrchestratorLayout /*constructor(
     private fun View.myLayoutParams() = this.layoutParams as LayoutParams
 
     class LayoutParams : FrameLayout.LayoutParams {
+
         // private raw attributes extracted from the layout
+        private var relationToContent: Int = RELATION_ENCLOSES
         private var scrollDownBehavior: Int = NOTHING
         private var scrollUpBehavior: Int = NOTHING
+
         // computed attributes
         val scrollDownAction by lazy { getAction(scrollDownBehavior) }
         val scrollUpAction by lazy { getAction(scrollUpBehavior) }
+        val relation by lazy {
+            when (relationToContent) {
+                RELATION_OVER -> Relation.OVER
+                else -> Relation.ENCLOSES
+            }
+        }
 
 
         constructor(width: Int, height: Int) : super(width, height)
@@ -253,6 +262,7 @@ class OrchestratorLayout /*constructor(
             if (attrs != null) {
                 val array = context.theme.obtainStyledAttributes(attrs, R.styleable.OrchestratorLayout_Layout, 0, 0)
 
+                relationToContent = array.getInt(R.styleable.OrchestratorLayout_Layout_relationToContent, RELATION_ENCLOSES)
                 scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_whenContentScrollsDown, NOTHING)
                 scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_whenContentScrollsUp, NOTHING)
 
@@ -273,8 +283,16 @@ class OrchestratorLayout /*constructor(
 
         companion object {
             const val NOTHING = -1
+
+            const val RELATION_ENCLOSES = 0
+            const val RELATION_OVER = 1
+
             const val BEHAVIOR_HIDE = 0
             const val BEHAVIOR_SHOW = 1
+        }
+
+        enum class Relation {
+            ENCLOSES, OVER
         }
     }
 
