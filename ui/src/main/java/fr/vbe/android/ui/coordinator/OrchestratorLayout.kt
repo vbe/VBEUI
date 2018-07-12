@@ -67,19 +67,50 @@ class OrchestratorLayout /*constructor(
 
         val totalHeight = bottom - top
         // first computing the height of the scrolling content
-        // which is the total height minus the aggregate height of all other children
-        val contentHeight = totalHeight - children().filter { it != content }.sumBy { it.height }
+        // which is the total height minus the aggregate height of all other enclosing children
+        val contentHeight = totalHeight - children()
+                .filter { it != content && it.myLayoutParams().relation == LayoutParams.Relation.ENCLOSES }
+                .sumBy { it.height }
 
+        // first, layouting enclosing children and content
         var childTop = top
+        var childBottom = 0
+        val overChildren = mutableListOf<View>()
         for (i in 0 until childCount) {
             val child = getChildAt(i)
+            if (child.myLayoutParams().relation == LayoutParams.Relation.OVER) {
+                // will draw the over children later on
+                overChildren.add(child)
+            }
+            else {
 //          logIfDebug("onLayout|| ch=${child::class.java.simpleName} ch.h=${child.height}")
-            // computing the bottom position of the child, layouting the child, then updating
-            // the top position of the next child
-            val childBottom = childTop + if (child == content) contentHeight else child.height
-            child.layout(left, childTop, right, childBottom)
-            childTop = childBottom
+                // computing the bottom position of the child, layouting the child, then updating
+                // the top position of the next child
+                childBottom = childTop + if (child == content) contentHeight else child.height
+                child.layout(left, childTop, right, childBottom)
+                childTop = childBottom
+            }
         }
+
+        // then layouting the views which are on top AND over the content
+        childTop = content.top
+        overChildren.filter { viewInfos[it]?.position == Position.TOP }
+                .forEach { child ->
+                    childBottom = childTop + child.height
+                    child.layout(0, childTop, child.width, childBottom)
+                    childTop = childBottom
+                }
+
+        // finally layouting the views which are at the bottom AND over the content
+        childBottom = content.bottom
+        overChildren.filter { viewInfos[it]?.position == Position.BOTTOM }
+                // reversing it as we go from bottom to top
+                .reversed()
+                .forEach { child ->
+                    childTop = childBottom - child.height
+                    child.layout(0, childTop, child.width, childBottom)
+                    childBottom = childTop
+                }
     }
 
     private fun doFirstPass() {
