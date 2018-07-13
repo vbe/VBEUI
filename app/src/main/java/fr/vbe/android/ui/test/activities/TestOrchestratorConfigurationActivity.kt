@@ -33,6 +33,8 @@ class TestOrchestratorConfigurationActivity : AppCompatActivity() {
             })
         })
 
+        TestOrchestratorActivity::class.create(this, configuration)
+
     }
 
     fun checkBoxLine(text: String, onToggled: (Boolean) -> Unit) = LinearLayout(this).also {
