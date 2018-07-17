@@ -4,7 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.TypedArray
 import android.support.annotation.CallSuper
+import android.support.annotation.IdRes
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
@@ -276,6 +278,10 @@ class OrchestratorLayout /*constructor(
         private var relationToContent: Int = RELATION_ENCLOSES
         private var scrollDownBehavior: Int = NOTHING
         private var scrollUpBehavior: Int = NOTHING
+        private var toTopOf: Positioning = Positioning.None()
+        private var toLeftOf: Positioning = Positioning.None()
+        private var toBottomOf: Positioning = Positioning.None()
+        private var toRightOf: Positioning = Positioning.None()
 
         // computed attributes
         val scrollDownAction by lazy { getAction(scrollDownBehavior) }
@@ -296,6 +302,20 @@ class OrchestratorLayout /*constructor(
                 relationToContent = array.getInt(R.styleable.OrchestratorLayout_Layout_relationToContent, RELATION_ENCLOSES)
                 scrollDownBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_whenContentScrollsDown, NOTHING)
                 scrollUpBehavior = array.getInt(R.styleable.OrchestratorLayout_Layout_whenContentScrollsUp, NOTHING)
+
+                fun getPositioning(array: TypedArray, index: Int): Positioning {
+                    val resId = array.getResourceId(index, NOTHING)
+                    return when {
+                        resId != NOTHING -> Positioning.RelativeToView(resId)
+                        array.getInt(index, NOTHING) == POSITION_RELATIVE_TO_CONTENT -> Positioning.RelativeToContent()
+                        else -> Positioning.None()
+                    }
+                }
+
+                toTopOf = getPositioning(array, R.styleable.OrchestratorLayout_Layout_toTopOf)
+                toLeftOf = getPositioning(array, R.styleable.OrchestratorLayout_Layout_toLeftOf)
+                toBottomOf = getPositioning(array, R.styleable.OrchestratorLayout_Layout_toBottomOf)
+                toRightOf = getPositioning(array, R.styleable.OrchestratorLayout_Layout_toRightOf)
 
                 array.recycle()
             }
@@ -320,6 +340,14 @@ class OrchestratorLayout /*constructor(
 
             const val BEHAVIOR_HIDE = 0
             const val BEHAVIOR_SHOW = 1
+
+            const val POSITION_RELATIVE_TO_CONTENT = 1
+        }
+
+        sealed class Positioning {
+            class None : Positioning()
+            class RelativeToContent : Positioning()
+            class RelativeToView(@IdRes val ref: Int) : Positioning()
         }
 
         enum class Relation {

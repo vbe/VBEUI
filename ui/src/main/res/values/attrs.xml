@@ -6,6 +6,7 @@
     </declare-styleable>
     <declare-styleable name="OrchestratorLayout_Layout">
 
+        <!-- view behaviors -->
         <attr name="whenContentScrollsDown" format="enum">
             <enum name="hide" value="0"/>
             <enum name="show" value="1"/>
@@ -14,9 +15,25 @@
             <enum name="hide" value="0"/>
             <enum name="show" value="1"/>
         </attr>
+
+        <!-- view positioning relative to content -->
         <attr name="relationToContent" format="enum">
             <enum name="encloses" value="0"/>
             <enum name="over" value="1"/>
+        </attr>
+
+        <!-- view positioning relative to other views -->
+        <attr name="toTopOf" format="reference|enum">
+            <enum name="content" value="1" />
+        </attr>
+        <attr name="toRightOf" format="reference|enum">
+            <enum name="content" value="1" />
+        </attr>
+        <attr name="toLeftOf" format="reference|enum">
+            <enum name="content" value="1" />
+        </attr>
+        <attr name="toBottomOf" format="reference|enum">
+            <enum name="content" value="1" />
         </attr>
     </declare-styleable>
 
