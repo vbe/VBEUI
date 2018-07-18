@@ -34,6 +34,7 @@ class OrchestratorLayout /*constructor(
     private val reactingViews = Movement.allClasses().associate { Pair(it, mutableSetOf<View>()) }
 
     private val viewInfos = mutableMapOf<View, ViewInfo>()
+    private val overChildrenOrganization = mutableListOf<List<View>>()
 
 
     constructor(context: Context) : this(context, null, 0)
@@ -93,34 +94,19 @@ class OrchestratorLayout /*constructor(
                 childTop = childBottom
             }
         }
-
-        // then layouting the views which are on top AND over the content
-        childTop = content.top
-        overChildren.filter { viewInfos[it]?.position == Position.TOP }
-                .forEach { child ->
-                    childBottom = childTop + child.height
-                    child.layout(0, childTop, child.width, childBottom)
-                    childTop = childBottom
-                }
-
-        // finally layouting the views which are at the bottom AND over the content
-        childBottom = content.bottom
-        overChildren.filter { viewInfos[it]?.position == Position.BOTTOM }
-                // reversing it as we go from bottom to top
-                .reversed()
-                .forEach { child ->
-                    childTop = childBottom - child.height
-                    child.layout(0, childTop, child.width, childBottom)
-                    childBottom = childTop
-                }
     }
 
     private fun doFirstPass() {
         logIfDebug("doFirstPass|==========|")
-        var position = Position.TOP
+        val overChildren = mutableListOf<View>()
+        val overChildrenById = mutableMapOf<Int, View>()
+        // independent means the positioning is not linked to any other over view
+        fun isIndependent(pos: LayoutParams.Positioning) = pos is LayoutParams.Positioning.None || pos is LayoutParams.Positioning.RelativeToContent
+        val dealtOverChildren = mutableListOf<View>()
+        val remainingOverChildren = mutableListOf<View>()
+
         for (child in children()) {
             if (child == content){
-                position = Position.BOTTOM
                 continue
             }
 
@@ -134,8 +120,54 @@ class OrchestratorLayout /*constructor(
                 reactingViews[Up::class]?.add(child)
             }
 
-            viewInfos[child] = ViewInfo(State.VISIBLE, -1f, child.layoutParams.height, position)
+            if (lp.relation == LayoutParams.Relation.OVER) {
+                overChildren.add(child)
+                overChildrenById[child.id] = child
+                if (
+                        isIndependent(lp.topPositioning) &&
+                        isIndependent(lp.rightPositioning) &&
+                        isIndependent(lp.leftPositioning) &&
+                        isIndependent(lp.bottomPositioning)
+                ) {
+                    dealtOverChildren.add(child)
+                }
+                else {
+                    remainingOverChildren.add(child)
+                }
+            }
+
+            viewInfos[child] = ViewInfo(State.VISIBLE, -1f, child.layoutParams.height, Position.TOP)
         }
+
+        // dealt with positioning means the positioning is either independent (not linked to another over view)
+        // or the linked view's full positioning has been dealt with
+        fun isPositioningDependencyDealtWith(pos: LayoutParams.Positioning) = isIndependent(pos) ||
+                (pos is LayoutParams.Positioning.RelativeToView && dealtOverChildren.contains(overChildrenById[pos.ref]))
+        // first layer of over children is the one that are fully independent
+        overChildrenOrganization.add(List(dealtOverChildren.size, {dealtOverChildren[it]}))
+        var security = 0
+        while (remainingOverChildren.isNotEmpty() && security < 100) {
+            val layer = mutableListOf<View>()
+            remainingOverChildren.forEach { overChild ->
+                val lp = overChild.myLayoutParams()
+                if (
+                        isPositioningDependencyDealtWith(lp.topPositioning) &&
+                        isPositioningDependencyDealtWith(lp.rightPositioning) &&
+                        isPositioningDependencyDealtWith(lp.bottomPositioning) &&
+                        isPositioningDependencyDealtWith(lp.leftPositioning)
+                ) {
+                    layer.add(overChild)
+                }
+            }
+
+            remainingOverChildren.removeAll(layer)
+            overChildrenOrganization.add(layer)
+            dealtOverChildren.addAll(layer)
+            security++
+        }
+
+        if (remainingOverChildren.isNotEmpty()) throw IllegalArgumentException("Could not layout over children properly.")
+
         isFirstLayoutPass = false
     }
 
@@ -292,6 +324,10 @@ class OrchestratorLayout /*constructor(
                 else -> Relation.ENCLOSES
             }
         }
+        val topPositioning by lazy { toTopOf }
+        val leftPositioning by lazy { toLeftOf }
+        val bottomPositioning by lazy { toBottomOf }
+        val rightPositioning by lazy { toRightOf }
 
 
         constructor(width: Int, height: Int) : super(width, height)

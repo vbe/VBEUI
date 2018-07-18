@@ -14,6 +14,7 @@
 - Define relation to the scrolling content: containing (bars) or over (fab)
 - Define relations between elements : (fab follows bottom bar)
 - hide_follow, hide_linear, hide_...
+- Test dynamic changes of layout values (is doFirstPass valid?)
 - manage RTL
 
 
