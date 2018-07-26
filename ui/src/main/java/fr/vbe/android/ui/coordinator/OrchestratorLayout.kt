@@ -34,6 +34,7 @@ class OrchestratorLayout /*constructor(
     private val reactingViews = Movement.allClasses().associate { Pair(it, mutableSetOf<View>()) }
 
     private val viewInfos = mutableMapOf<View, ViewInfo>()
+    private val overChildrenById = mutableMapOf<Int, View>()
     private val overChildrenOrganization = mutableListOf<List<View>>()
 
 
@@ -94,12 +95,97 @@ class OrchestratorLayout /*constructor(
                 childTop = childBottom
             }
         }
+
+        var childLeft = 0
+        var childRight = 0
+        overChildrenOrganization.forEach { pass ->
+            pass.forEach { overView ->
+                val lp = overView.myLayoutParams()
+
+                // TODO /!\ leftPositioning == toLeftOf !
+
+                // positioning top and bottom
+                val topPositioning = lp.topPositioning
+                val bottomPositioning = lp.bottomPositioning
+
+                fun getBottomPosRelativeToTopPos(bottomPositioning: LayoutParams.Positioning) = when (bottomPositioning) {
+                    is LayoutParams.Positioning.None -> childTop + overView.height
+                    is LayoutParams.Positioning.RelativeToContent -> content.bottom
+                    is LayoutParams.Positioning.RelativeToView -> overChildrenById[bottomPositioning.ref]?.top ?: content.bottom
+                }
+                when (topPositioning) {
+                    is LayoutParams.Positioning.None -> {
+                        when (bottomPositioning) {
+                            is LayoutParams.Positioning.None -> {
+                                childTop = content.top
+                                childBottom = childTop + overView.height
+                            }
+                            is LayoutParams.Positioning.RelativeToContent -> {
+                                childBottom = content.bottom
+                                childTop = childBottom - overView.height
+                            }
+                            is LayoutParams.Positioning.RelativeToView -> {
+                                childBottom = overChildrenById[bottomPositioning.ref]?.top ?: content.bottom
+                                childTop = childBottom - overView.height
+                            }
+                        }
+                    }
+                    is LayoutParams.Positioning.RelativeToContent -> {
+                        childTop = content.top
+                        childBottom = getBottomPosRelativeToTopPos(bottomPositioning)
+                    }
+                    is LayoutParams.Positioning.RelativeToView -> {
+                        childTop = overChildrenById[topPositioning.ref]?.bottom ?: content.top
+                        childBottom = getBottomPosRelativeToTopPos(bottomPositioning)
+                    }
+                }
+
+
+                // positioning left and right
+                val leftPositioning = lp.leftPositioning
+                val rightPositioning = lp.rightPositioning
+
+                fun getRightPosRelativeToLeftPos(rightPositioning: LayoutParams.Positioning) = when (rightPositioning) {
+                    is LayoutParams.Positioning.None -> childLeft + overView.width
+                    is LayoutParams.Positioning.RelativeToContent -> content.right
+                    is LayoutParams.Positioning.RelativeToView -> overChildrenById[rightPositioning.ref]?.left ?: content.right
+                }
+                when (leftPositioning) {
+                    is LayoutParams.Positioning.None -> {
+                        when (rightPositioning) {
+                            is LayoutParams.Positioning.None -> {
+                                childLeft = content.left
+                                childRight = childLeft + overView.width
+                            }
+                            is LayoutParams.Positioning.RelativeToContent -> {
+                                childRight = content.right
+                                childLeft = childRight - overView.width
+                            }
+                            is LayoutParams.Positioning.RelativeToView -> {
+                                childRight = overChildrenById[rightPositioning.ref]?.left ?: content.right
+                                childLeft = childRight - overView.width
+                            }
+                        }
+                    }
+                    is LayoutParams.Positioning.RelativeToContent -> {
+                        childLeft = content.left
+                        childRight = getRightPosRelativeToLeftPos(rightPositioning)
+                    }
+                    is LayoutParams.Positioning.RelativeToView -> {
+                        childLeft = overChildrenById[leftPositioning.ref]?.right ?: content.left
+                        childRight = getRightPosRelativeToLeftPos(rightPositioning)
+                    }
+                }
+
+                // layouting the view
+                overView.layout(childLeft, childTop, childRight, childBottom)
+            }
+        }
     }
 
     private fun doFirstPass() {
         logIfDebug("doFirstPass|==========|")
         val overChildren = mutableListOf<View>()
-        val overChildrenById = mutableMapOf<Int, View>()
         // independent means the positioning is not linked to any other over view
         fun isIndependent(pos: LayoutParams.Positioning) = pos is LayoutParams.Positioning.None || pos is LayoutParams.Positioning.RelativeToContent
         val dealtOverChildren = mutableListOf<View>()
